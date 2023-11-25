@@ -7,9 +7,11 @@ use axum::{
     Router,
 };
 use futures::{Stream, StreamExt};
+use http::{HeaderValue, Method};
 use serde::Deserialize;
 use std::convert::Infallible;
 use std::error::Error;
+use tower_http::cors::{Any, CorsLayer};
 
 #[derive(Deserialize)]
 struct RunCode {
@@ -44,7 +46,16 @@ async fn run_code(
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let app = Router::new().route("/run", post(run_code));
+    let cors = CorsLayer::new()
+        .allow_methods([Method::GET, Method::POST])
+        .allow_headers(Any)
+        .allow_origin(
+            option_env!("ALLOW_ORIGIN")
+                .unwrap_or("http://localhost:5173")
+                .parse::<HeaderValue>()
+                .unwrap(),
+        );
+    let app = Router::new().route("/run", post(run_code)).layer(cors);
 
     axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
         .serve(app.into_make_service())

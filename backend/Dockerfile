@@ -1,4 +1,5 @@
 FROM rust:1.74-slim as builder
+ARG ALLOW_ORIGIN
 
 WORKDIR /usr/src/app
 
