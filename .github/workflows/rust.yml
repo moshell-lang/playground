@@ -1,0 +1,20 @@
+on: [push]
+
+name: Build Rust project
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: Rust project
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build
+        run: cd backend && cargo build

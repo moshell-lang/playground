@@ -1,0 +1,12 @@
+:root {
+  --header-height: 64px;
+}
+#navbar {
+  height: var(--header-height);
+}
+#content {
+  height: calc(100vh - var(--header-height));
+}
+.gutter {
+  cursor: col-resize;
+}
