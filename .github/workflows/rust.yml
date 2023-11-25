@@ -9,12 +9,17 @@ jobs:
   build:
     name: Rust project
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Rust Cache
         uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: backend
 
       - name: Build
-        run: cd backend && cargo build
+        run: cargo build
