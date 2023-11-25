@@ -29,7 +29,16 @@ async fn run_code(
     assert_eq!(payload.version, RunVersion::Latest); // The only one that exists
     let stream = runner::runner(payload.code)
         .await
-        .map(|line: String| Ok(Event::default().data(line)));
+        .map(|line: Option<String>| {
+            Ok({
+                let event = Event::default();
+                if let Some(line) = line {
+                    event.data(line)
+                } else {
+                    event.id("end")
+                }
+            })
+        });
     Sse::new(stream)
 }
 

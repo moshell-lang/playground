@@ -7,7 +7,7 @@ import { Editor } from './components/Editor.tsx';
 import { Navbar } from './components/Navbar.tsx';
 
 export function Playground() {
-  const [editorText, setEditorText] = useState('');
+  const [editorText, setEditorText] = useState(localStorage.getItem('editorText') || '');
   const [outputText, setOutputText] = useState('');
   const [sse, setSSE] = useState<SSE | null>(null);
   const appendOutputText = (text: string) =>
@@ -32,6 +32,11 @@ export function Playground() {
         payload: JSON.stringify({ version: 'latest', code: editorText }),
       });
       sse.addEventListener('message', (event: MessageEvent<string>) => {
+        // @ts-ignore - id is not in the type definition
+        if (event.id === 'end') {
+          sse.close();
+          setSSE(null);
+        }
         appendOutputText(event.data);
       });
       sse.addEventListener('error', () => {

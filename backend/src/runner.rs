@@ -3,8 +3,9 @@ use std::process::Stdio;
 use std::time::Duration;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::process::Command;
+use tokio::time::timeout;
 
-pub(crate) async fn runner(code: String) -> impl Stream<Item = String> {
+pub(crate) async fn runner(code: String) -> impl Stream<Item = Option<String>> {
     async_stream::stream! {
         let mut child = Command::new("prlimit")
             .args([
@@ -36,7 +37,7 @@ pub(crate) async fn runner(code: String) -> impl Stream<Item = String> {
                 "--unshare-all",
                 "--die-with-parent",
                 "/bin/env",
-                "bash",
+                "moshell",
             ])
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
@@ -56,24 +57,31 @@ pub(crate) async fn runner(code: String) -> impl Stream<Item = String> {
             tokio::select! {
                 line = stdout.next_line() => {
                     if let Ok(Some(line)) = line {
-                        yield line;
+                        yield Some(line);
                     } else {
                         break;
                     }
                 }
                 line = stderr.next_line() => {
                     if let Ok(Some(line)) = line {
-                        yield line;
+                        yield Some(line);
                     } else {
                         break;
                     }
                 }
                 _ = &mut sleep => {
-                    yield "Timeout".to_owned();
+                    yield Some("Timeout".to_owned());
                     break;
                 }
             }
         }
-        child.kill().await.unwrap();
+        match timeout(Duration::from_secs(1), child.wait()).await {
+            Ok(Ok(status)) => yield Some(format!("Exited with status: {}", status.code().unwrap_or(-1))),
+            Ok(Err(_)) => {},
+            Err(_) => {
+                child.kill().await.unwrap();
+            }
+        };
+        yield None;
     }
 }
