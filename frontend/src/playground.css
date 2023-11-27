@@ -10,3 +10,7 @@
 .gutter {
   cursor: col-resize;
 }
+#output {
+  font-family: monospace;
+  line-height: 1.1;
+}
