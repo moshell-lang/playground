@@ -11,6 +11,7 @@ use http::{HeaderValue, Method};
 use serde::Deserialize;
 use std::convert::Infallible;
 use std::error::Error;
+use tokio::net::TcpListener;
 use tower_http::cors::{Any, CorsLayer};
 
 #[derive(Deserialize)]
@@ -57,9 +58,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         );
     let app = Router::new().route("/run", post(run_code)).layer(cors);
 
-    axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    axum::serve(listener, app).await.unwrap();
     Ok(())
 }
