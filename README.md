@@ -21,6 +21,7 @@ Prepare the frontend:
 ```sh
 cd frontend
 pnpm install # Or your favorite package manager (npm, yarn, bun...)
+pnpm run gen:parser # Generate the Moshell parser
 pnpm run dev # Start a development server
 # pnpm run build # Bundle assets
 ```

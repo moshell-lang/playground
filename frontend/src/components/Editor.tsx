@@ -4,6 +4,7 @@ import { oneDark } from '@codemirror/theme-one-dark';
 import { EditorView, keymap } from '@codemirror/view';
 import { basicSetup } from 'codemirror';
 import { useEffect, useRef } from 'preact/hooks';
+import { moshell } from '../lezer/moshell.ts';
 
 interface EditorProps {
   text: string;
@@ -14,6 +15,7 @@ export function Editor({ onChange, text }: EditorProps) {
   const extensions: Extension[] = [
     basicSetup,
     keymap.of([indentWithTab]),
+    moshell(),
     EditorView.updateListener.of((update) => {
       onChange(update.state.doc.toString());
     }),
@@ -36,7 +38,6 @@ export function Editor({ onChange, text }: EditorProps) {
     <div
       id="editor"
       ref={ref}
-      defaultValue={text}
     />
   );
 }

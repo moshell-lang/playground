@@ -11,6 +11,8 @@ node_modules
 dist
 target
 *.local
+*.js
+*.sh
 
 # Editor directories and files
 .vscode

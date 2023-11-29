@@ -1,0 +1,216 @@
+@precedence {
+  pipeline @left,
+  prefix @right,
+  assignation @right
+}
+
+@top SourceFile {
+  declarations |
+  ""
+}
+
+declarations {
+  (declaration terminator)* declaration terminator?
+}
+
+declaration {
+  FunctionDeclaration |
+  UseDeclaration |
+  VariableDeclaration |
+  statement |
+  Return |
+  kw<"break"> |
+  kw<"continue">
+}
+
+FunctionDeclaration {
+  kw<"fun">  Identifier ParameterList ("->" TypeIdentifier)? "=" expression
+}
+
+ParameterList {
+  "(" (FunctionParameter ("," FunctionParameter)*)? ")"
+}
+
+FunctionParameter {
+  Identifier ":" TypeIdentifier
+}
+
+UseDeclaration {
+  kw<"use"> useClause
+}
+
+useClause {
+  Identifier ("::" Identifier)* ("as" Identifier)?
+}
+
+VariableDeclaration {
+  (kw<"var"> | kw<"val">) Identifier (":" TypeIdentifier)? ("=" expression)?
+}
+
+Command {
+  CommandName argument* Redirection*
+}
+
+statement {
+  Command |
+  Pipeline |
+  While |
+  "!" Command |
+  expression
+}
+
+While {
+  kw<"while"> statement Block
+}
+
+Return {
+  kw<"return"> expression?
+}
+
+expression {
+  Block |
+  If |
+  CallExpression |
+  Assignation |
+  InfixExpression |
+  PrefixExpression |
+  ParentherizedExpression |
+  Expansion |
+  Primary
+}
+
+Block {
+  "{" declarations? "}"
+}
+
+If {
+  kw<"if"> statement Block (kw<"else"> Block)?
+}
+
+CallExpression {
+  Identifier ArgumentList
+}
+
+ArgumentList {
+  "(" expression? ("," expression)* ")"
+}
+
+Assignation {
+  (Identifier | expression) !assignation ArithOp? "=" expression
+}
+
+CastExpression /* precedence: left 0 */ {
+  expression kw<"as"> TypeIdentifier
+}
+
+InfixExpression {
+  expression !pipeline (ArithOp | CompareOp { "==" | "!=" | "<" | ">" | "<=" | ">=" } | LogicOp | kw<"in">) expression
+}
+
+PrefixExpression {
+  !prefix ("!" | "-") expression
+}
+
+TestExpression {
+  "[" expression "]"
+}
+
+ArithmeticExpression {
+  "((" expression "))"
+}
+
+ParentherizedExpression {
+  "(" expression ")"
+}
+
+Expansion {
+  Variable |
+  CommandSubstitution
+}
+
+Pipeline {
+  statement !pipeline "|" statement
+}
+
+Redirection {
+  Number? Redir { "<" | ">" | ">>" | "<<<" | "&>" | "&>>" | "<&" | ">&" } argument
+}
+
+CommandSubstitution {
+  "$(" declaration ")"
+}
+
+CommandName {
+  Identifier
+}
+
+argument {
+  RawString |
+  TemplateString |
+  Expansion |
+  Word
+}
+
+Primary {
+  Number |
+  @specialize[@name=BooleanLiteral]<Identifier, "true" | "false"> |
+  RawString |
+  TemplateString
+}
+
+TemplateString {
+  "\"" (stringContent | Expansion)* "\""
+}
+
+TypeIdentifier {
+  Identifier
+}
+
+Variable {
+  "$" Identifier
+}
+
+kw<term> { @specialize[@name={term}]<Identifier, term> }
+@skip { whitespace | LineComment | BlockComment }
+
+@tokens {
+  @precedence {BlockComment, LineComment,
+  stringContent, ArithOp, LogicOp, "=", '|', Number, Identifier, Word, terminator, whitespace}
+  whitespace {
+    @whitespace+
+  }
+  LineComment {
+    "//" ![\n]*
+  }
+  BlockComment {
+    "/**" ![*]* "\\*"+ (![/*] ![*]* "\\*"+)* "/"
+  }
+  Identifier {
+    $[a-zA-Z_] $[a-zA-Z0-9_]*
+  }
+  Word {
+    ![#'"\\ \t\n\r$<>{}&;()]+
+  }
+  Number {
+    $[0-9]+
+  }
+  RawString {
+    "'" ![']* "'"
+  }
+  ArithOp {
+    "+" | "-" | "*" | "/" | "%"
+  }
+  stringContent /* precedence: -1 */ {
+    (!["`$\\] | "\\\\" (![\n] | "\\r"? "\\n"))+
+  }
+  terminator {
+    ";" | "\n"
+  }
+  LogicOp {
+    "&&" | "||"
+  }
+  "="[@name=AssignOp]
+  "!"[@name=PrefixOp]
+  "-"[@name=PrefixOp]
+  "{" "}" "(" ")" "[" "]" "." "," ";" ":"
+}
