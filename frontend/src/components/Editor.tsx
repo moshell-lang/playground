@@ -1,21 +1,42 @@
-import AceEditor from 'react-ace';
-import 'ace-builds/src-noconflict/theme-github';
-import 'ace-builds/src-noconflict/theme-github_dark';
+import { indentWithTab } from '@codemirror/commands';
+import { EditorState, Extension } from '@codemirror/state';
+import { oneDark } from '@codemirror/theme-one-dark';
+import { EditorView, keymap } from '@codemirror/view';
+import { basicSetup } from 'codemirror';
+import { useEffect, useRef } from 'preact/hooks';
 
 interface EditorProps {
   text: string;
   onChange: (value: string) => void;
 }
-export const Editor = ({ onChange, text }: EditorProps) => (
-  <AceEditor
-    className="h-100 font-monospace fs-6"
-    focus
-    mode="text"
-    name="editor"
-    theme={document.documentElement.getAttribute('data-bs-theme')! === 'dark' ? 'github_dark' : 'github'}
-    onChange={onChange}
-    showGutter={false}
-    showPrintMargin={false}
-    value={text}
-  />
-);
+export function Editor({ onChange, text }: EditorProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const extensions: Extension[] = [
+    basicSetup,
+    keymap.of([indentWithTab]),
+    EditorView.updateListener.of((update) => {
+      onChange(update.state.doc.toString());
+    }),
+  ];
+  if (document.documentElement.getAttribute('data-bs-theme')! === 'dark') {
+    extensions.push(oneDark);
+  }
+  useEffect(() => {
+    const state = EditorState.create({
+      doc: text,
+      extensions,
+    });
+    const view = new EditorView({
+      state,
+      parent: ref.current!,
+    });
+    return () => view.destroy();
+  }, []);
+  return (
+    <div
+      id="editor"
+      ref={ref}
+      defaultValue={text}
+    />
+  );
+}
