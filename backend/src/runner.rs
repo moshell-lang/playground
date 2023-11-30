@@ -43,6 +43,7 @@ pub(crate) async fn runner(code: String) -> impl Stream<Item = Option<String>> {
                 "/bin/env",
                 "moshell",
             ])
+            .env("CLICOLOR_FORCE", "1")
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
