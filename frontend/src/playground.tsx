@@ -49,6 +49,15 @@ export function Playground() {
     });
   };
 
+  const handleStopClick = () =>
+    setSSE((current) => {
+      if (current) {
+        current.close();
+        appendOutputText('Process terminated by user');
+      }
+      return null;
+    });
+
   useEffect(() => {
     localStorage.setItem('editorText', editorText);
   }, [editorText]);
@@ -57,7 +66,7 @@ export function Playground() {
     <>
       <Navbar
         isRunning={sse !== null}
-        onRunClick={handleRunClick}
+        onRunClick={sse === null ? handleRunClick : handleStopClick}
       />
       <Split
         class="d-flex"
