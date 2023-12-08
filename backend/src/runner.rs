@@ -5,7 +5,6 @@ use std::task::{Context, Poll};
 use std::time::Duration;
 use tokio::io::{AsyncBufReadExt, AsyncRead, AsyncWriteExt, BufReader, ReadBuf};
 use tokio::process::Command;
-use tokio::time::timeout;
 
 const SIZE_LIMIT: usize = 256 * 1024; // 256 Kio
 
@@ -43,6 +42,7 @@ pub(crate) async fn runner(code: String) -> impl Stream<Item = Option<String>> {
                 "/bin/env",
                 "moshell",
             ])
+            .kill_on_drop(true)
             .env_clear()
             .env("CLICOLOR_FORCE", "1")
             .stdin(Stdio::piped())
@@ -62,32 +62,34 @@ pub(crate) async fn runner(code: String) -> impl Stream<Item = Option<String>> {
         loop {
             tokio::select! {
                 line = stdout.next_line() => {
-                    if let Ok(Some(line)) = line {
-                        yield Some(line);
-                    } else {
-                        break;
+                    match line {
+                        Ok(Some(line)) => yield Some(line),
+                        Ok(None) => {},
+                        Err(_) => break,
                     }
                 }
                 line = stderr.next_line() => {
-                    if let Ok(Some(line)) = line {
-                        yield Some(line);
-                    } else {
-                        break;
+                    match line {
+                        Ok(Some(line)) => yield Some(line),
+                        Ok(None) => {},
+                        Err(_) => break,
                     }
                 }
+                status = child.wait() => {
+                    if let Ok(status) = status {
+                        yield Some(format!("Exited with status: {}", status.code().unwrap_or(-1)));
+                    } else {
+                        yield Some("Exited with error".to_owned());
+                    }
+                    break;
+                }
                 _ = &mut sleep => {
+                    child.kill().await.unwrap();
                     yield Some("Timeout".to_owned());
                     break;
                 }
             }
         }
-        match timeout(Duration::from_secs(1), child.wait()).await {
-            Ok(Ok(status)) => yield Some(format!("Exited with status: {}", status.code().unwrap_or(-1))),
-            Ok(Err(_)) => {},
-            Err(_) => {
-                child.kill().await.unwrap();
-            }
-        };
         yield None;
     }
 }
@@ -115,7 +117,10 @@ impl<S: AsyncRead + Unpin> AsyncRead for TakeBytes<S> {
         buf: &mut ReadBuf<'_>,
     ) -> Poll<std::io::Result<()>> {
         if self.seen >= self.limit {
-            return Poll::Ready(Ok(()));
+            return Poll::Ready(Err(std::io::Error::new(
+                std::io::ErrorKind::Other, // Switch to FileTooLarge when stabilized
+                "Size limit exceeded",
+            )));
         }
         let poll = Pin::new(&mut self.inner).poll_read(cx, buf);
         if let Poll::Ready(Ok(())) = poll {
