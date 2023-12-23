@@ -11,9 +11,25 @@
   height: 100%;
 }
 .gutter {
+  background-color: #e8e8e8;
+  background-position: 50%;
+  background-repeat: no-repeat;
+}
+.gutter.gutter-horizontal {
   cursor: col-resize;
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==);
 }
 #output {
   font-family: monospace;
   line-height: 1;
+}
+
+[data-bs-theme="light"] #navbar {
+  background-color: #e8e8e8 !important;
+}
+[data-bs-theme="dark"] .gutter {
+  background-color: rgba(var(--bs-tertiary-bg-rgb),var(--bs-bg-opacity));
+}
+[data-bs-theme="dark"] #output {
+  background-color: #282c34;
 }

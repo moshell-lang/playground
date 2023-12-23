@@ -5,7 +5,7 @@ interface ConsoleProps {
 }
 export const Console = ({ text }: ConsoleProps) => (
   <pre
-    className="h-100 fs-6 ms-1"
+    className="h-100 fs-6 ps-1"
     id="output"
   ><Ansi>{text}</Ansi></pre>
 );
