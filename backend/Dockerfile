@@ -1,4 +1,4 @@
-FROM rust:1.74-slim as builder
+FROM rust:1.75-slim as builder
 ARG ALLOW_ORIGIN
 
 WORKDIR /usr/src/app

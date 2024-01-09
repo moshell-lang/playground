@@ -3,7 +3,7 @@ use std::pin::Pin;
 use std::process::Stdio;
 use std::task::{Context, Poll};
 use std::time::Duration;
-use tokio::io::{AsyncBufReadExt, AsyncRead, AsyncWriteExt, BufReader, ReadBuf};
+use tokio::io::{AsyncBufReadExt, AsyncRead, BufReader, ReadBuf};
 use tokio::process::Command;
 
 const SIZE_LIMIT: usize = 256 * 1024; // 256 Kio
@@ -41,20 +41,19 @@ pub(crate) async fn runner(code: String) -> impl Stream<Item = Option<String>> {
                 "--die-with-parent",
                 "/bin/env",
                 "moshell",
+                "-c",
+                &code
             ])
             .kill_on_drop(true)
             .env_clear()
             .env("CLICOLOR_FORCE", "1")
-            .stdin(Stdio::piped())
+            .stdin(Stdio::null())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
             .spawn()
             .expect("Failed to spawn command");
         let sleep = tokio::time::sleep(Duration::from_secs(5));
         tokio::pin!(sleep);
-        let mut stdin = child.stdin.take().unwrap();
-        stdin.write_all(code.as_bytes()).await.unwrap();
-        drop(stdin);
 
         let mut stdout = BufReader::new(TakeBytes::new(child.stdout.take().unwrap(), SIZE_LIMIT)).lines();
         let mut stderr = BufReader::new(TakeBytes::new(child.stderr.take().unwrap(), SIZE_LIMIT)).lines();
