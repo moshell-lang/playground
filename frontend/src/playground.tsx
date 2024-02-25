@@ -23,7 +23,7 @@ export function Playground() {
       if (current) {
         current.close();
       }
-      const sse = new SSE('http://localhost:3000/run', {
+      const sse = new SSE(import.meta.env.VITE_BACKEND || 'http://localhost:3000/run', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
