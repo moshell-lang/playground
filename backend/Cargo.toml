@@ -5,11 +5,10 @@ edition = "2021"
 
 [dependencies]
 axum = { version = "0.7.1", features = ["json"] }
+socket2 = "=0.5.5"
 futures = "0.3.29"
 serde = { version = "1.0.193", features = ["serde_derive"] }
-tokio = { version = "1.34.0", features = ["macros", "rt-multi-thread", "process", "io-util"] }
-tokio-stream = "0.1.14"
+tokio = { version = "1.34.0", features = ["macros", "rt-multi-thread", "process"] }
 async-stream = "0.3.5"
-oneshot = "0.1.6"
 tower-http = { version = "0.5.0", features = ["cors"] }
 http = "1.0.0"
