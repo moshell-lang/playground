@@ -5,16 +5,13 @@
   },
   "json": {
   },
-  "dockerfile": {
-  },
   "excludes": [
     "**/node_modules",
     "**/*-lock.json",
     "**/dist"
   ],
   "plugins": [
-    "https://plugins.dprint.dev/typescript-0.88.5.wasm",
-    "https://plugins.dprint.dev/json-0.19.1.wasm",
-    "https://plugins.dprint.dev/dockerfile-0.3.0.wasm"
+    "https://plugins.dprint.dev/typescript-0.90.0.wasm",
+    "https://plugins.dprint.dev/json-0.19.2.wasm"
   ]
 }

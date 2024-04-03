@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'preact/hooks';
 import './playground.css';
-import Split from 'react-split';
 import { SSE } from 'sse.js';
 import { Console } from './components/Console.tsx';
 import { Editor } from './components/Editor.tsx';
 import { Navbar } from './components/Navbar.tsx';
+import { Split } from './components/Split.tsx';
 
 export function Playground() {
   const [editorText, setEditorText] = useState(localStorage.getItem('editorText') || '');
@@ -68,12 +68,7 @@ export function Playground() {
         isRunning={sse !== null}
         onRunClick={sse === null ? handleRunClick : handleStopClick}
       />
-      <Split
-        class="d-flex"
-        cursor="col-resize"
-        direction="horizontal"
-        id="content"
-      >
+      <Split id="content">
         <Editor text={editorText} onChange={setEditorText} />
         <Console text={outputText} />
       </Split>
