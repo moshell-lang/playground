@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "packageManager": "pnpm@9.1.0",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -10,18 +11,18 @@
     "gen:parser": "lezer-generator src/lezer/moshell.grammar -o src/lezer/parser.js"
   },
   "dependencies": {
-    "@codemirror/commands": "^6.3.3",
+    "@codemirror/commands": "^6.5.0",
     "@codemirror/language": "^6.10.1",
     "@codemirror/state": "^6.4.1",
     "@codemirror/theme-one-dark": "^6.1.2",
-    "@codemirror/view": "^6.26.1",
+    "@codemirror/view": "^6.26.3",
     "@curvenote/ansi-to-react": "^7.0.0",
     "@lezer/highlight": "^1.2.0",
     "@lezer/lr": "^1.4.0",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
     "codemirror": "^6.0.1",
-    "preact": "^10.20.1",
+    "preact": "^10.21.0",
     "react": "npm:@preact/compat@^17.1.2",
     "react-dom": "npm:@preact/compat@^17.1.2",
     "sse.js": "^2.4.1"
@@ -30,7 +31,7 @@
     "@babel/plugin-transform-react-jsx": "^7.23.4",
     "@lezer/generator": "^1.7.0",
     "@preact/preset-vite": "^2.8.2",
-    "typescript": "^5.4.3",
-    "vite": "^5.2.8"
+    "typescript": "^5.4.5",
+    "vite": "^5.2.11"
   }
 }
