@@ -1,7 +1,6 @@
 import { render } from 'preact';
 import { Playground } from './playground.tsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap-icons/font/bootstrap-icons.css';
 
 let theme = 'light';
 if (window.matchMedia('(prefers-color-scheme: dark)').matches) {

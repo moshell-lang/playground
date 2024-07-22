@@ -1,3 +1,6 @@
+import GitHubLogo from '~icons/bi/github';
+import Play from '~icons/bi/play-fill';
+
 interface NavbarProps {
   isRunning: boolean;
   onRunClick: () => void;
@@ -5,7 +8,7 @@ interface NavbarProps {
 
 export function Navbar({ onRunClick, isRunning }: NavbarProps) {
   let runColor = 'btn-success';
-  let runIcon = 'me-1 bi bi-play-fill';
+  let runIcon = 'me-1';
   let runText = 'Run';
 
   if (isRunning) {
@@ -21,12 +24,13 @@ export function Navbar({ onRunClick, isRunning }: NavbarProps) {
       </div>
       <div>
         <a
-          class="btn btn-dark bi bi-github me-1"
+          class="btn btn-dark me-1"
           href="https://github.com/moshell-lang/moshell"
           target="_blank"
           title="Visit GitHub repository"
           aria-label="GitHub"
         >
+          <GitHubLogo />
         </a>
         <button
           id="run-btn"
@@ -34,7 +38,7 @@ export function Navbar({ onRunClick, isRunning }: NavbarProps) {
           onClick={onRunClick}
           aria-label="Run code"
         >
-          <span class={runIcon} role="status" aria-hidden="true" />
+          {isRunning ? <span class={runIcon} role="status" aria-hidden="true" /> : <Play class={runIcon} />}
           {runText}
         </button>
       </div>
