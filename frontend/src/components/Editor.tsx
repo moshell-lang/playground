@@ -1,10 +1,12 @@
 import { indentWithTab } from '@codemirror/commands';
-import { EditorState, Extension } from '@codemirror/state';
+import { defaultHighlightStyle, syntaxHighlighting } from '@codemirror/language';
+import { Compartment, EditorState, Extension } from '@codemirror/state';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { EditorView, keymap } from '@codemirror/view';
 import { basicSetup } from 'codemirror';
 import { useEffect, useRef } from 'preact/hooks';
 import { moshell } from '../lezer/moshell.ts';
+import { colorSchemeQuery } from '../theme.ts';
 
 interface EditorProps {
   text: string;
@@ -12,18 +14,17 @@ interface EditorProps {
 }
 export function Editor({ onChange, text }: EditorProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const extensions: Extension[] = [
-    basicSetup,
-    keymap.of([indentWithTab]),
-    moshell(),
-    EditorView.updateListener.of((update) => {
-      onChange(update.state.doc.toString());
-    }),
-  ];
-  if (document.documentElement.getAttribute('data-bs-theme')! === 'dark') {
-    extensions.push(oneDark);
-  }
   useEffect(() => {
+    const themeConfig = new Compartment();
+    const extensions: Extension[] = [
+      basicSetup,
+      keymap.of([indentWithTab]),
+      moshell(),
+      EditorView.updateListener.of((update) => {
+        onChange(update.state.doc.toString());
+      }),
+      themeConfig.of(currentTheme()),
+    ];
     const state = EditorState.create({
       doc: text,
       extensions,
@@ -32,7 +33,17 @@ export function Editor({ onChange, text }: EditorProps) {
       state,
       parent: ref.current!,
     });
-    return () => view.destroy();
+
+    function setTheme(): void {
+      view.dispatch({
+        effects: themeConfig.reconfigure(currentTheme()),
+      });
+    }
+    colorSchemeQuery.addEventListener('change', setTheme);
+    return () => {
+      colorSchemeQuery.removeEventListener('change', setTheme);
+      view.destroy();
+    };
   }, []);
   return (
     <div
@@ -40,4 +51,9 @@ export function Editor({ onChange, text }: EditorProps) {
       ref={ref}
     />
   );
+}
+function currentTheme(): Extension {
+  return colorSchemeQuery.matches
+    ? oneDark
+    : syntaxHighlighting(defaultHighlightStyle, { fallback: true });
 }

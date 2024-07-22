@@ -1,11 +1,13 @@
 import { render } from 'preact';
 import { Playground } from './playground.tsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { colorSchemeQuery } from './theme.ts';
 
-let theme = 'light';
-if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-  theme = 'dark';
+function setTheme(): void {
+  const theme = colorSchemeQuery.matches ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-bs-theme', theme);
 }
-document.documentElement.setAttribute('data-bs-theme', theme);
+colorSchemeQuery.addEventListener('change', setTheme);
+setTheme();
 
 render(<Playground />, document.getElementById('app')!);
