@@ -30,7 +30,7 @@ svg {
 #output {
   font-family: monospace;
   line-height: 1;
-  flex-grow: 1;
+  flex: 1;
 }
 
 [data-bs-theme="light"] #navbar {
