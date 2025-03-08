@@ -32,8 +32,7 @@ export function Playground() {
         payload: JSON.stringify({ version: 'latest', code: editorText }),
       });
       sse.addEventListener('message', (event: MessageEvent<string>) => {
-        // @ts-ignore - id is not in the type definition
-        if (event.id === 'end') {
+        if (event.lastEventId === 'end') {
           sse.close();
           setSSE(null);
         }
