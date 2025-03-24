@@ -1,10 +1,9 @@
 mod runner;
 
 use axum::{
-    extract,
+    Router, extract,
     response::sse::{Event, Sse},
     routing::post,
-    Router,
 };
 use futures::{Stream, StreamExt};
 use http::{HeaderValue, Method};
@@ -12,6 +11,7 @@ use serde::Deserialize;
 use std::convert::Infallible;
 use std::error::Error;
 use tokio::net::TcpListener;
+use tokio::signal;
 use tower_http::cors::{Any, CorsLayer};
 
 #[derive(Deserialize)]
@@ -59,6 +59,29 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let app = Router::new().route("/run", post(run_code)).layer(cors);
 
     let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
-    axum::serve(listener, app).await.unwrap();
+    axum::serve(listener, app)
+        .with_graceful_shutdown(shutdown_signal())
+        .await
+        .unwrap();
     Ok(())
+}
+
+async fn shutdown_signal() {
+    let ctrl_c = async {
+        signal::ctrl_c()
+            .await
+            .expect("failed to install Ctrl+C handler");
+    };
+
+    let terminate = async {
+        signal::unix::signal(signal::unix::SignalKind::terminate())
+            .expect("failed to install signal handler")
+            .recv()
+            .await;
+    };
+
+    tokio::select! {
+        _ = ctrl_c => {},
+        _ = terminate => {},
+    }
 }
