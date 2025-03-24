@@ -16,7 +16,7 @@ export function Split({ id, children: panes }: SplitProps) {
     }
     const percentage = (firstHalf.clientWidth + movementX) / firstHalf.parentElement!.clientWidth * 100;
     firstHalf.style.width = `${percentage}%`;
-  }
+  };
 
   useEffect(() => {
     const handleMouseUp = () => {
