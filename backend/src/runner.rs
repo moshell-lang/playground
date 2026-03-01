@@ -117,7 +117,7 @@ impl<S: AsyncRead + Unpin> AsyncRead for TakeBytes<S> {
     ) -> Poll<std::io::Result<()>> {
         if self.seen >= self.limit {
             return Poll::Ready(Err(std::io::Error::new(
-                std::io::ErrorKind::Other, // Switch to FileTooLarge when stabilized
+                std::io::ErrorKind::FileTooLarge,
                 "Size limit exceeded",
             )));
         }

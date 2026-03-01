@@ -1,4 +1,4 @@
-FROM rust:1.85.1-slim as builder
+FROM rust:1.93.1-slim as builder
 ARG ALLOW_ORIGIN
 
 WORKDIR /usr/src/app
@@ -12,10 +12,10 @@ RUN cargo build --release
 COPY . .
 RUN touch src/main.rs && cargo build --release
 
-FROM debian:bookworm-slim as runtime
+FROM debian:trixie-slim as runtime
 
 RUN apt-get update && apt-get install -y bubblewrap util-linux && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get dist-clean
 COPY --from=ghcr.io/moshell-lang/moshell:master /bin/moshell /usr/bin/moshell
 COPY --from=ghcr.io/moshell-lang/moshell:master /usr/share/moshell /usr/share/moshell
 COPY --from=builder /usr/src/app/target/release/kronoss /usr/local/bin/kronoss

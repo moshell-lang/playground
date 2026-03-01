@@ -38,7 +38,7 @@ async fn run_code(
                 if let Some(line) = line {
                     event.data(line)
                 } else {
-                    event.id("end")
+                    event.data("end").id("end")
                 }
             })
         });
@@ -58,7 +58,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         );
     let app = Router::new().route("/run", post(run_code)).layer(cors);
 
-    let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    let listener = TcpListener::bind("[::]:3000").await.unwrap();
     axum::serve(listener, app)
         .with_graceful_shutdown(shutdown_signal())
         .await
